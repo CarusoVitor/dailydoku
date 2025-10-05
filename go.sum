@@ -4,6 +4,8 @@ github.com/CarusoVitor/dokuex v0.0.0-20251005025358-b62e6004f207 h1:ouenDe6Jr3Ne
 github.com/CarusoVitor/dokuex v0.0.0-20251005025358-b62e6004f207/go.mod h1:L6mGkJ17jJ3NO0MKTIbDZPUJ1MOn82rBYa3QwzV2VX0=
 github.com/CarusoVitor/dokuex v0.0.0-20251005025956-dc08702e2bdc h1:Qu3rXJZuW2lCWlikSjhj9m3j8n8AQJ1rE/unblBPbn4=
 github.com/CarusoVitor/dokuex v0.0.0-20251005025956-dc08702e2bdc/go.mod h1:L6mGkJ17jJ3NO0MKTIbDZPUJ1MOn82rBYa3QwzV2VX0=
+github.com/CarusoVitor/dokuex v0.0.0-20251005204807-33f8beb32673 h1:CpYozE3Qk1vXVVeQ2NRMOQyEc1+wIf7aWuQyFuSTN6U=
+github.com/CarusoVitor/dokuex v0.0.0-20251005204807-33f8beb32673/go.mod h1:L6mGkJ17jJ3NO0MKTIbDZPUJ1MOn82rBYa3QwzV2VX0=
 github.com/PuerkitoBio/goquery v1.10.2 h1:7fh2BdHcG6VFZsK7toXBT/Bh1z5Wmy8Q9MV9HqT2AM8=
 github.com/PuerkitoBio/goquery v1.10.2/go.mod h1:0guWGjcLu9AYC7C1GHnpysHy056u9aEkUHwhdnePMCU=
 github.com/andybalholm/cascadia v1.3.3 h1:AG2YHrzJIm4BZ19iwJ/DAua6Btl3IwJX+VI4kktS1LM=
