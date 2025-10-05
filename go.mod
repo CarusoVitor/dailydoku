@@ -2,7 +2,7 @@ module github.com/CarusoVitor/dailydoku
 
 go 1.25.1
 
-require github.com/CarusoVitor/dokuex v0.0.0-20251005204807-33f8beb32673
+require github.com/CarusoVitor/dokuex v1.0.0
 
 require (
 	github.com/PuerkitoBio/goquery v1.10.2 // indirect
