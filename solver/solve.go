@@ -163,9 +163,9 @@ func printManySolutions(solution map[string][]string, numToDisplay int) {
 
 // printOneSolution displays a random solution grid formatted on a table style.
 // The randomness come from dokuex's Match using sets, so its return value is
-// non deterministic,
+// non deterministic. It displays a "-" in case the characteristic is
+// not implemented in dokuex.
 func printOneSolution(solution map[string][]string, dailyPuzzle PokeDokuDailyResponse) {
-	// margin := 0
 	row := dailyPuzzle.getRow()
 	column := dailyPuzzle.getColumn()
 
