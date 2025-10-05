@@ -7,6 +7,9 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"os"
+	"strings"
+	"text/tabwriter"
 
 	"github.com/CarusoVitor/dokuex/characteristics"
 )
@@ -42,6 +45,10 @@ type characteristicSquare struct {
 	ExcludedForms []string `json:"excludedForms"`
 }
 
+func (cs characteristicSquare) String() string {
+	return fmt.Sprintf("%s(%s)", cs.Type, cs.Obj)
+}
+
 type PokeDokuDailyResponse struct {
 	X1   characteristicSquare `json:"x1"`
 	X2   characteristicSquare `json:"x2"`
@@ -52,18 +59,23 @@ type PokeDokuDailyResponse struct {
 	Date string               `json:"date"`
 }
 
+func (pg PokeDokuDailyResponse) getRow() []characteristicSquare {
+	return []characteristicSquare{pg.X1, pg.X2, pg.X3}
+}
+
+func (pg PokeDokuDailyResponse) getColumn() []characteristicSquare {
+	return []characteristicSquare{pg.Y1, pg.Y2, pg.Y3}
+}
+
+func formatCharacteristicSquares(squareA, squareB characteristicSquare) string {
+	return fmt.Sprintf("%s,%s", squareA, squareB)
+}
+
 func solveGrid(pokedokuGrid PokeDokuDailyResponse) map[string][]string {
-	row := []characteristicSquare{
-		pokedokuGrid.X1,
-		pokedokuGrid.X2,
-		pokedokuGrid.X3,
-	}
-	column := []characteristicSquare{
-		pokedokuGrid.Y1,
-		pokedokuGrid.Y2,
-		pokedokuGrid.Y3,
-	}
+	row := pokedokuGrid.getRow()
+	column := pokedokuGrid.getColumn()
 	solutions := make(map[string][]string, len(row)*len(column))
+
 	for _, xsquare := range row {
 		for _, ysquare := range column {
 			pokemons, err := solveForTwo(xsquare, ysquare)
@@ -71,7 +83,7 @@ func solveGrid(pokedokuGrid PokeDokuDailyResponse) map[string][]string {
 				slog.Error("error solving for two", "err", err)
 				pokemons = nil
 			}
-			key := fmt.Sprintf("%s(%s),%s(%s)", xsquare.Type, xsquare.Obj, ysquare.Type, ysquare.Obj)
+			key := formatCharacteristicSquares(xsquare, ysquare)
 			solutions[key] = pokemons
 		}
 	}
@@ -108,6 +120,7 @@ func formatMatchError(err error) error {
 	return nil
 }
 
+// Solve uses dokuex's Match to solve the daily PokeDoku's puzzle.
 func Solve(client http.Client, numToDisplay int) error {
 	resp, err := client.Get(pokedokuApiDaily)
 	if err != nil {
@@ -125,6 +138,18 @@ func Solve(client http.Client, numToDisplay int) error {
 
 	solution := solveGrid(dailyPuzzle)
 
+	if numToDisplay > 1 {
+		printManySolutions(solution, numToDisplay)
+	} else if numToDisplay == 1 {
+		printOneSolution(solution, dailyPuzzle)
+	} else {
+		return fmt.Errorf("invalid number of pokemons to display: %d", numToDisplay)
+	}
+
+	return nil
+}
+
+func printManySolutions(solution map[string][]string, numToDisplay int) {
 	for combination, pokemons := range solution {
 		fmt.Printf("%s: ", combination)
 		if pokemons == nil {
@@ -134,6 +159,39 @@ func Solve(client http.Client, numToDisplay int) error {
 			fmt.Printf("%v\n", pokemons[:toDisplay])
 		}
 	}
+}
 
-	return nil
+// printOneSolution displays a random solution grid formatted on a table style.
+// The randomness come from dokuex's Match using sets, so its return value is
+// non deterministic,
+func printOneSolution(solution map[string][]string, dailyPuzzle PokeDokuDailyResponse) {
+	// margin := 0
+	row := dailyPuzzle.getRow()
+	column := dailyPuzzle.getColumn()
+
+	var header strings.Builder
+	header.WriteByte(' ')
+	for _, square := range row {
+		header.WriteString(fmt.Sprintf("\t%s", square))
+	}
+	header.WriteString("\n")
+
+	w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
+	fmt.Fprint(w, header.String())
+
+	for _, ysquare := range column {
+		fmt.Fprintf(w, "%s", ysquare)
+		for _, xsquare := range row {
+			combinationKey := formatCharacteristicSquares(xsquare, ysquare)
+			pokemons := solution[combinationKey]
+
+			pokemon := "-"
+			if len(pokemons) > 0 {
+				pokemon = pokemons[0]
+			}
+			fmt.Fprintf(w, "\t%s", pokemon)
+		}
+		fmt.Fprint(w, "\n")
+	}
+	w.Flush()
 }
